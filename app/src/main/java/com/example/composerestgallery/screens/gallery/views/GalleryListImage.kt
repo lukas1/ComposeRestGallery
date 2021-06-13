@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import coil.size.OriginalSize
 import com.example.composerestgallery.R
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryImage
 import com.google.accompanist.coil.rememberCoilPainter
@@ -22,7 +23,15 @@ fun GalleryListImage(image: GalleryImage) {
         Image(
             painter = rememberCoilPainter(
                 image.url,
-                fadeIn = true
+                fadeIn = true,
+                requestBuilder = {
+                    // This needs to be more intelligent, size of placeholder should be
+                    // calculated based on image size that would be parsed from API.
+                    // Without it, content jumps around as images are loaded.
+                    // For this demo this is left as is.
+                    placeholder(R.drawable.ic_baseline_image_24)
+                    size(OriginalSize)
+                }
             ),
             contentDescription = image.description,
             modifier = Modifier
