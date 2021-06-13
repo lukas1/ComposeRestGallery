@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("kotlin-android")
+    kotlin("plugin.serialization") version "1.5.0"
 }
 
 val kotlinVersion: String by rootProject.extra
@@ -37,6 +38,10 @@ android {
         resources.excludes += "META-INF/AL2.0"
         resources.excludes += "META-INF/LGPL2.1"
     }
+    kotlinOptions {
+        @Suppress("SuspiciousCollectionReassignment")
+        freeCompilerArgs += "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi"
+    }
 }
 
 dependencies {
@@ -58,6 +63,10 @@ dependencies {
 
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.0-alpha07")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha06")
+
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.2")
