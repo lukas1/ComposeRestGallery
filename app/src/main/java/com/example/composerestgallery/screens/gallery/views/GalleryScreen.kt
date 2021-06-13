@@ -50,6 +50,17 @@ fun GalleryScreen(viewModel: GalleryViewModel) {
                         // has the same size
                         GalleryListImage(image = image, height = 250f)
                     }
+
+                    // Bottom loading view
+                    item {
+                        LoadingView(
+                            loadingState = state.nextPageLoadingState,
+                            modifier = Modifier.fillMaxWidth(),
+                            onRetry = { viewModel.loadNextPage() }
+                        ) {
+                            // Intentionally empty success layout
+                        }
+                    }
                 }
                 GalleryViewMode.GRID -> LazyVerticalGrid(
                     cells = GridCells.Adaptive(Dp(150f)),
@@ -61,6 +72,17 @@ fun GalleryScreen(viewModel: GalleryViewModel) {
                         // Height is just random value so that each element
                         // has the same size
                         GalleryListImage(image = image, height = 150f)
+                    }
+
+                    // Bottom loading view
+                    item {
+                        LoadingView(
+                            loadingState = state.nextPageLoadingState,
+                            modifier = Modifier.fillMaxWidth(),
+                            onRetry = { viewModel.loadNextPage() }
+                        ) {
+                            // Intentionally empty success layout
+                        }
                     }
                 }
             }

@@ -10,6 +10,7 @@ import com.example.composerestgallery.api.GalleryService
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryImage
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryViewModel
 import kotlinx.coroutines.suspendCancellableCoroutine
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import kotlin.coroutines.Continuation
@@ -34,6 +35,7 @@ class GalleryScreenTest {
     @get:Rule
     val screenTestRule = createAndroidComposeRule<MainActivity>()
 
+    @ExperimentalTestApi
     @Test
     fun imagesDisplayed() {
         var continuation: Continuation<List<GalleryImage>>? = null
@@ -52,17 +54,14 @@ class GalleryScreenTest {
 
         // Screen is created, new page is loading, so loading view is visible
         screenTestRule
-            .onNode(hasText(screenTestRule.activity.getString(R.string.loading)))
-            .assertExists()
+            .onRoot()
+            .onChildAt(1)
+            .assert(hasText(screenTestRule.activity.getString(R.string.loading)))
 
-        // simulates that images are loaded
+        // Simulates that images are loaded
         requireNotNull(continuation).resume(images)
 
-        // no loading or error should be displayed
-        screenTestRule
-            .onNode(hasText(screenTestRule.activity.getString(R.string.loading)))
-            .assertDoesNotExist()
-
+        // No error should be displayed, loading is on bottom of list
         screenTestRule
             .onNode(hasText(screenTestRule.activity.getString(R.string.error)))
             .assertDoesNotExist()
@@ -86,8 +85,18 @@ class GalleryScreenTest {
                 screenTestRule.activity.getString(R.string.by_author, images[1].userName)
             )
         )
+
+        // Must scroll to bottom when running on small device/emulator
+        lazyColumnNode.performScrollToIndex(1)
+
         // There's no other image displayed
-        lazyColumnNode.onChildAt(6).assertDoesNotExist()
+        lazyColumnNode.assert(
+            hasAnyDescendant(
+                hasText(screenTestRule.activity.getString(R.string.loading))
+            )
+        )
+        lazyColumnNode.onChildAt(7).assertDoesNotExist()
+        assertEquals(7, lazyColumnNode.fetchSemanticsNode().children.count())
 
         // Simulates next page load by scrolling to bottom
         val nextPageImages = listOf(
@@ -115,17 +124,28 @@ class GalleryScreenTest {
             )
         )
 
-        lazyColumnNode.onChildAt(9).assert(
-            hasContentDescription(nextPageImages[1].description)
+        // Must scroll to bottom when running on small device/emulator
+        lazyColumnNode.performScrollToIndex(4)
+        lazyColumnNode.assert(
+            hasAnyDescendant(
+                hasContentDescription(nextPageImages[1].description)
+            )
         )
-        lazyColumnNode.onChildAt(10).assert(hasText(nextPageImages[1].description))
-        lazyColumnNode.onChildAt(11).assert(
-            hasText(
-                screenTestRule.activity.getString(R.string.by_author, nextPageImages[1].userName)
+        lazyColumnNode.assert(
+            hasAnyDescendant(
+                hasText(nextPageImages[1].description)
+            )
+        )
+        lazyColumnNode.assert(
+            hasAnyDescendant(
+                hasText(
+                    screenTestRule.activity.getString(R.string.by_author, nextPageImages[1].userName)
+                )
             )
         )
     }
 
+    @ExperimentalTestApi
     @Test
     fun errorWithRetry() {
         var continuation: Continuation<List<GalleryImage>>? = null
@@ -172,11 +192,7 @@ class GalleryScreenTest {
         // Simulates successful response from server
         requireNotNull(continuation).resume(images)
 
-        // Now no loading or error message should be displayed
-        screenTestRule
-            .onNode(hasText(screenTestRule.activity.getString(R.string.loading)))
-            .assertDoesNotExist()
-
+        // Now error message should be displayed, only bottom loading should be displayed
         screenTestRule
             .onNode(hasText(screenTestRule.activity.getString(R.string.error)))
             .assertDoesNotExist()
@@ -200,8 +216,16 @@ class GalleryScreenTest {
                 screenTestRule.activity.getString(R.string.by_author, images[1].userName)
             )
         )
+
+        // Must scroll to bottom when running on small device/emulator
+        lazyColumnNode.performScrollToIndex(1)
+
+        // Bottom loading is displayed
+        lazyColumnNode.onChildAt(6)
+            .assert(hasText(screenTestRule.activity.getString(R.string.loading)))
+
         // There's no other image displayed
-        lazyColumnNode.onChildAt(6).assertDoesNotExist()
+        lazyColumnNode.onChildAt(7).assertDoesNotExist()
     }
 
     @Test

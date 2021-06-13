@@ -21,7 +21,8 @@ class GalleryViewModel @Inject constructor(
     companion object {
         const val viewModeStateHandleKey = "viewMode"
     }
-    private val _state = MutableStateFlow(GalleryState(images = LoadingState.Loading))
+
+    private val _state = MutableStateFlow(GalleryState(images = LoadingState.Loaded(emptyList())))
     val state: StateFlow<GalleryState> = _state.asStateFlow()
 
     init {
@@ -31,27 +32,50 @@ class GalleryViewModel @Inject constructor(
         refresh()
     }
 
-    private suspend fun loadPage() {
-        _state.value.nextGalleryPageKey?.let { loadPage(it) }
+    private suspend fun loadPage() = with(state.value) {
+        if (images !is LoadingState.Loading && nextPageLoadingState !is LoadingState.Loading) {
+            nextGalleryPageKey?.let { loadPage(it) }
+        }
     }
 
     private suspend fun loadPage(page: Int) {
+        val isFirstPage = page == 1
         try {
+            _state.nextState {
+                if (isFirstPage) {
+                    copy(images = LoadingState.Loading)
+                } else {
+                    copy(nextPageLoadingState = LoadingState.Loading)
+                }
+            }
+
             val newImages = galleryService.getPhotos(page)
             _state.nextState {
                 copy(
                     images = LoadingState.Loaded((images.loadedValue ?: emptyList()) + newImages),
-                    nextGalleryPageKey = if (newImages.isEmpty()) null else page + 1
+                    nextGalleryPageKey = if (newImages.isEmpty()) null else page + 1,
+                    nextPageLoadingState = LoadingState.Loaded(Unit)
                 )
             }
         } catch (e: Exception) {
-            _state.nextState { copy(images = LoadingState.Error) }
+            _state.nextState {
+                if (isFirstPage) {
+                    copy(images = LoadingState.Error)
+                } else {
+                    copy(nextPageLoadingState = LoadingState.Error)
+                }
+            }
         }
     }
 
     fun refresh() {
         viewModelScope.launch {
-            _state.nextState { copy(images = LoadingState.Loading, nextGalleryPageKey = 1) }
+            _state.nextState {
+                copy(
+                    nextGalleryPageKey = 1,
+                    nextPageLoadingState = LoadingState.Loaded(Unit)
+                )
+            }
 
             loadPage()
         }

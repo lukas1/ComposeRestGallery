@@ -11,6 +11,7 @@ import org.junit.Test
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class GalleryViewModelTest {
     @get:Rule
@@ -176,37 +177,70 @@ class GalleryViewModelTest {
         val firstPage = listOf(images.first())
         val secondPage = listOf(images.last())
         var loadedLastPageOnce = false
+
+        var nextPageResult: List<GalleryImage> = emptyList()
+        var continuation: Continuation<List<GalleryImage>>? = null
+
         val mockGalleryService = object : GalleryService {
             override suspend fun getPhotos(
                 page: Int?, perPage: Int
-            ): List<GalleryImage> = when (page) {
-                1 -> firstPage
-                2 -> secondPage
-                else -> listOf<GalleryImage>().also {
-                    if (!loadedLastPageOnce) {
-                        loadedLastPageOnce = true
-                    } else {
-                        // To verify, that multiple calls to viewModel::loadNextPage on last page
-                        // do not cause any additional loads from data service
-                        throw IllegalStateException()
+            ): List<GalleryImage> = suspendCoroutine {
+                nextPageResult = when (page) {
+                    1 -> firstPage
+                    2 -> secondPage
+                    else -> listOf<GalleryImage>().also {
+                        if (!loadedLastPageOnce) {
+                            loadedLastPageOnce = true
+                        } else {
+                            // To verify, that multiple calls to viewModel::loadNextPage on last page
+                            // do not cause any additional loads from data service
+                            throw IllegalStateException()
+                        }
                     }
                 }
+                continuation = it
             }
         }
 
-        // First page is loaded automatically
+        // Start with loading state
         val viewModel = viewModel(mockGalleryService)
+
         assertEquals(
             GalleryState(
-                images = LoadingState.Loaded(firstPage),
-                nextGalleryPageKey = 2
+                images = LoadingState.Loading,
+                nextGalleryPageKey = 1,
+                nextPageLoadingState = LoadingState.Loaded(Unit)
             ),
             viewModel.state.value
         )
 
+        // Finish loading first page
+        requireNotNull(continuation).resume(nextPageResult)
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(firstPage),
+                nextGalleryPageKey = 2,
+                nextPageLoadingState = LoadingState.Loaded(Unit)
+            ),
+            viewModel.state.value
+        )
+
+        // When next page loading is started, nextPageLoadingState is set to Loading
+        viewModel.loadNextPage()
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(firstPage),
+                nextGalleryPageKey = 2,
+                nextPageLoadingState = LoadingState.Loading
+            ),
+            viewModel.state.value
+        )
+
+        // Simulates loading page after delay
+        requireNotNull(continuation).resume(nextPageResult)
+
         // When next page is loaded, it is appended to current list of images,
         // index of next page to load is increased
-        viewModel.loadNextPage()
         assertEquals(
             GalleryState(
                 images = LoadingState.Loaded(firstPage + secondPage),
@@ -219,10 +253,12 @@ class GalleryViewModelTest {
         // Lack of next pages to load is represented by null
         assertEquals(false, loadedLastPageOnce)
         viewModel.loadNextPage()
+        requireNotNull(continuation).resume(nextPageResult)
         assertEquals(
             GalleryState(
                 images = LoadingState.Loaded(firstPage + secondPage),
-                nextGalleryPageKey = null
+                nextGalleryPageKey = null,
+                nextPageLoadingState = LoadingState.Loaded(Unit)
             ),
             viewModel.state.value
         )
@@ -233,7 +269,8 @@ class GalleryViewModelTest {
         assertEquals(
             GalleryState(
                 images = LoadingState.Loaded(firstPage + secondPage),
-                nextGalleryPageKey = null
+                nextGalleryPageKey = null,
+                nextPageLoadingState = LoadingState.Loaded(Unit)
             ),
             viewModel.state.value
         )
@@ -285,6 +322,126 @@ class GalleryViewModelTest {
             GalleryState(
                 images = LoadingState.Loaded(firstPage),
                 nextGalleryPageKey = 2
+            ),
+            viewModel.state.value
+        )
+    }
+
+    @Test
+    fun loadingNextPageCannotBeCalledIfPageIsBeingLoaded() {
+        var continuation: Continuation<List<GalleryImage>>? = null
+        var callCount = 0
+
+        val mockGalleryService = object : GalleryService {
+            override suspend fun getPhotos(
+                page: Int?, perPage: Int
+            ): List<GalleryImage> = suspendCoroutine {
+                callCount += 1
+                continuation = it
+            }
+        }
+
+        // Start with loading state
+        assertEquals(0, callCount)
+        val viewModel = viewModel(mockGalleryService)
+
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loading,
+                nextGalleryPageKey = 1,
+                nextPageLoadingState = LoadingState.Loaded(Unit)
+            ),
+            viewModel.state.value
+        )
+        assertEquals(1, callCount)
+
+        // If first page is still not loaded, next page can't be loaded yet
+        // No call to GalleryService is therefore expected
+        viewModel.loadNextPage()
+        assertEquals(1, callCount)
+
+        // Finish loading first page
+        requireNotNull(continuation).resume(images)
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(images),
+                nextGalleryPageKey = 2,
+                nextPageLoadingState = LoadingState.Loaded(Unit)
+            ),
+            viewModel.state.value
+        )
+        assertEquals(1, callCount)
+
+        // When next page loading is started, nextPageLoadingState is set to Loading
+        viewModel.loadNextPage()
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(images),
+                nextGalleryPageKey = 2,
+                nextPageLoadingState = LoadingState.Loading
+            ),
+            viewModel.state.value
+        )
+        assertEquals(2, callCount)
+
+        // If previous page is still not loaded, next page can't be loaded yet
+        // No call to GalleryService is therefore expected
+        viewModel.loadNextPage()
+        assertEquals(2, callCount)
+
+        // Simulates loading page after delay
+        requireNotNull(continuation).resume(images)
+
+        // When next page is loaded, it is appended to current list of images,
+        // index of next page to load is increased
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(images + images),
+                nextGalleryPageKey = 3
+            ),
+            viewModel.state.value
+        )
+    }
+
+    @Test
+    fun errorInPaging() {
+        var continuation: Continuation<List<GalleryImage>>? = null
+        val mockGalleryService = object : GalleryService {
+            override suspend fun getPhotos(
+                page: Int?, perPage: Int
+            ): List<GalleryImage> = suspendCancellableCoroutine {
+                continuation = it
+            }
+        }
+
+        val viewModel = viewModel(mockGalleryService)
+        assertEquals(
+            GalleryState(images = LoadingState.Loading),
+            viewModel.state.value
+        )
+
+        // Loading first page is successful
+        requireNotNull(continuation).resume(images)
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(images),
+                nextGalleryPageKey = 2,
+                nextPageLoadingState = LoadingState.Loaded(Unit)
+            ),
+            viewModel.state.value
+        )
+
+        // Attempt loading next page
+        viewModel.loadNextPage()
+
+        // Simulates error loading images. Expected Error state for nextPageLoadingState
+        requireNotNull(continuation).resumeWithException(IllegalStateException())
+
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(images),
+                nextGalleryPageKey = 2,
+                nextPageLoadingState = LoadingState.Error
             ),
             viewModel.state.value
         )
