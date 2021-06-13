@@ -12,6 +12,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.example.composerestgallery.R
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryState
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryViewModel
 import com.google.accompanist.coil.rememberCoilPainter
@@ -48,6 +50,7 @@ fun GalleryScreen(viewModel: GalleryViewModel) {
                             .fillMaxWidth(fraction = 0.8f)
                     )
                     Text(text = image.description)
+                    Text(text = LocalContext.current.getString(R.string.by_author, image.userName))
                 }
             }
         }

@@ -64,9 +64,19 @@ class GalleryScreenTest {
 
         lazyColumnNode.onChildAt(0).assert(hasContentDescription(images[0].description))
         lazyColumnNode.onChildAt(1).assert(hasText(images[0].description))
-        lazyColumnNode.onChildAt(2).assert(hasContentDescription(images[1].description))
-        lazyColumnNode.onChildAt(3).assert(hasText(images[1].description))
-        lazyColumnNode.onChildAt(4).assertDoesNotExist()
+        lazyColumnNode.onChildAt(2).assert(
+            hasText(
+                screenTestRule.activity.getString(R.string.by_author, images[0].userName)
+            )
+        )
+        lazyColumnNode.onChildAt(3).assert(hasContentDescription(images[1].description))
+        lazyColumnNode.onChildAt(4).assert(hasText(images[1].description))
+        lazyColumnNode.onChildAt(5).assert(
+            hasText(
+                screenTestRule.activity.getString(R.string.by_author, images[1].userName)
+            )
+        )
+        lazyColumnNode.onChildAt(6).assertDoesNotExist()
     }
 
     @Test
@@ -120,8 +130,18 @@ class GalleryScreenTest {
 
         lazyColumnNode.onChildAt(0).assert(hasContentDescription(images[0].description))
         lazyColumnNode.onChildAt(1).assert(hasText(images[0].description))
-        lazyColumnNode.onChildAt(2).assert(hasContentDescription(images[1].description))
-        lazyColumnNode.onChildAt(3).assert(hasText(images[1].description))
-        lazyColumnNode.onChildAt(4).assertDoesNotExist()
+        lazyColumnNode.onChildAt(2).assert(
+            hasText(
+                screenTestRule.activity.getString(R.string.by_author, images[0].userName)
+            )
+        )
+        lazyColumnNode.onChildAt(3).assert(hasContentDescription(images[1].description))
+        lazyColumnNode.onChildAt(4).assert(hasText(images[1].description))
+        lazyColumnNode.onChildAt(5).assert(
+            hasText(
+                screenTestRule.activity.getString(R.string.by_author, images[1].userName)
+            )
+        )
+        lazyColumnNode.onChildAt(6).assertDoesNotExist()
     }
 }
