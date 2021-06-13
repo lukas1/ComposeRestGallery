@@ -1,5 +1,6 @@
-package com.example.composerestgallery.api
+package com.example.composerestgallery.networking
 
+import com.example.composerestgallery.screens.gallery.api.GalleryService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

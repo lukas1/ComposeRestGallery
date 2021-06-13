@@ -1,6 +1,6 @@
 package com.example.composerestgallery.screens.gallery.viewmodel
 
-import com.example.composerestgallery.api.GalleryImageSerializer
+import com.example.composerestgallery.screens.gallery.api.GalleryImageSerializer
 import kotlinx.serialization.Serializable
 
 @Serializable(with = GalleryImageSerializer::class)

@@ -6,7 +6,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.SavedStateHandle
 import com.example.composerestgallery.MainActivity
 import com.example.composerestgallery.R
-import com.example.composerestgallery.api.GalleryService
+import com.example.composerestgallery.screens.gallery.api.GalleryService
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryImage
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryViewModel
 import kotlinx.coroutines.suspendCancellableCoroutine

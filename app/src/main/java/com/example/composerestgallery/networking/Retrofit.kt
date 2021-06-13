@@ -1,4 +1,4 @@
-package com.example.composerestgallery.api
+package com.example.composerestgallery.networking
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json

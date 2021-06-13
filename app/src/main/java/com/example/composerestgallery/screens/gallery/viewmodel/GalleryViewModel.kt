@@ -3,7 +3,7 @@ package com.example.composerestgallery.screens.gallery.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.composerestgallery.api.GalleryService
+import com.example.composerestgallery.screens.gallery.api.GalleryService
 import com.example.composerestgallery.shared.model.LoadingState
 import com.example.composerestgallery.utils.nextState
 import dagger.hilt.android.lifecycle.HiltViewModel

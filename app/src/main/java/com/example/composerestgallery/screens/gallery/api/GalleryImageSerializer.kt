@@ -1,4 +1,4 @@
-package com.example.composerestgallery.api
+package com.example.composerestgallery.screens.gallery.api
 
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryImage
 import kotlinx.serialization.KSerializer

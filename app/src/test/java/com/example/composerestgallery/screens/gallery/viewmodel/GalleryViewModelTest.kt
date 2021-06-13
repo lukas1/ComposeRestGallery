@@ -2,7 +2,7 @@ package com.example.composerestgallery.screens.gallery.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
 import com.example.composerestgallery.TestCoroutineRule
-import com.example.composerestgallery.api.GalleryService
+import com.example.composerestgallery.screens.gallery.api.GalleryService
 import com.example.composerestgallery.shared.model.LoadingState
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.junit.Assert.*
