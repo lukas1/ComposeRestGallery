@@ -14,7 +14,8 @@ import kotlinx.serialization.json.jsonPrimitive
 object GalleryImageSerializer : KSerializer<GalleryImage> {
     override fun deserialize(decoder: Decoder): GalleryImage {
         val jsonObject = decoder.decodeSerializableValue(JsonObject.serializer())
-        val description = jsonObject.getValue("description").jsonPrimitive.content
+        val rawDescription = jsonObject.jsonObject["description"]?.jsonPrimitive?.content
+        val description = rawDescription?.let { if (it == "null" || it.isBlank()) null else it }
         val userName = jsonObject.jsonObject["user"]?.jsonObject?.get("name")?.jsonPrimitive?.content
         val url = jsonObject.jsonObject["urls"]?.jsonObject?.get("regular")?.jsonPrimitive?.content
 

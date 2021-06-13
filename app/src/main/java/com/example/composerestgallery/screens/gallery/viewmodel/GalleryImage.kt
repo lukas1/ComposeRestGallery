@@ -6,6 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable(with = GalleryImageSerializer::class)
 data class GalleryImage(
     val url: String,
-    val description: String,
+    val description: String?,
     val userName: String
 )

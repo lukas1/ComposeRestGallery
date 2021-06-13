@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import coil.size.OriginalSize
 import com.example.composerestgallery.R
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryImage
 import com.google.accompanist.coil.rememberCoilPainter
@@ -24,6 +23,9 @@ fun GalleryListImage(image: GalleryImage, height: Float) {
             .height(Dp(height)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val description = image.description ?: LocalContext.current.getString(
+            R.string.image_empty_description
+        )
         // In LazyVerticalGrid this Coil image painter has poor performance
         // I didn't into it. Could be also issue with the LazyVerticalGrid which is still
         // experimental.
@@ -39,12 +41,12 @@ fun GalleryListImage(image: GalleryImage, height: Float) {
                     placeholder(R.drawable.ic_baseline_image_24)
                 }
             ),
-            contentDescription = image.description,
+            contentDescription = description,
             modifier = Modifier
                 .fillMaxWidth(fraction = 0.8f)
                 .height(Dp(height - 50f)) // just a random value to give space to text under image
         )
-        Text(text = image.description, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(text = description, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Text(text = LocalContext.current.getString(R.string.by_author, image.userName), maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }

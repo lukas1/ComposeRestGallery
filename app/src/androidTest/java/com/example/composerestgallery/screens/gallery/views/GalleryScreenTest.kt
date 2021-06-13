@@ -71,15 +71,15 @@ class GalleryScreenTest {
             .onRoot()
             .onChildAt(1)
 
-        lazyColumnNode.onChildAt(0).assert(hasContentDescription(images[0].description))
-        lazyColumnNode.onChildAt(1).assert(hasText(images[0].description))
+        lazyColumnNode.onChildAt(0).assert(hasContentDescription(images[0].description!!))
+        lazyColumnNode.onChildAt(1).assert(hasText(images[0].description!!))
         lazyColumnNode.onChildAt(2).assert(
             hasText(
                 screenTestRule.activity.getString(R.string.by_author, images[0].userName)
             )
         )
-        lazyColumnNode.onChildAt(3).assert(hasContentDescription(images[1].description))
-        lazyColumnNode.onChildAt(4).assert(hasText(images[1].description))
+        lazyColumnNode.onChildAt(3).assert(hasContentDescription(images[1].description!!))
+        lazyColumnNode.onChildAt(4).assert(hasText(images[1].description!!))
         lazyColumnNode.onChildAt(5).assert(
             hasText(
                 screenTestRule.activity.getString(R.string.by_author, images[1].userName)
@@ -115,9 +115,9 @@ class GalleryScreenTest {
 
         // New two gallery images should be added to layout
         lazyColumnNode.onChildAt(6).assert(
-            hasContentDescription(nextPageImages[0].description)
+            hasContentDescription(nextPageImages[0].description!!)
         )
-        lazyColumnNode.onChildAt(7).assert(hasText(nextPageImages[0].description))
+        lazyColumnNode.onChildAt(7).assert(hasText(nextPageImages[0].description!!))
         lazyColumnNode.onChildAt(8).assert(
             hasText(
                 screenTestRule.activity.getString(R.string.by_author, nextPageImages[0].userName)
@@ -128,12 +128,12 @@ class GalleryScreenTest {
         lazyColumnNode.performScrollToIndex(4)
         lazyColumnNode.assert(
             hasAnyDescendant(
-                hasContentDescription(nextPageImages[1].description)
+                hasContentDescription(nextPageImages[1].description!!)
             )
         )
         lazyColumnNode.assert(
             hasAnyDescendant(
-                hasText(nextPageImages[1].description)
+                hasText(nextPageImages[1].description!!)
             )
         )
         lazyColumnNode.assert(
@@ -202,15 +202,15 @@ class GalleryScreenTest {
             .onRoot()
             .onChildAt(1)
 
-        lazyColumnNode.onChildAt(0).assert(hasContentDescription(images[0].description))
-        lazyColumnNode.onChildAt(1).assert(hasText(images[0].description))
+        lazyColumnNode.onChildAt(0).assert(hasContentDescription(images[0].description!!))
+        lazyColumnNode.onChildAt(1).assert(hasText(images[0].description!!))
         lazyColumnNode.onChildAt(2).assert(
             hasText(
                 screenTestRule.activity.getString(R.string.by_author, images[0].userName)
             )
         )
-        lazyColumnNode.onChildAt(3).assert(hasContentDescription(images[1].description))
-        lazyColumnNode.onChildAt(4).assert(hasText(images[1].description))
+        lazyColumnNode.onChildAt(3).assert(hasContentDescription(images[1].description!!))
+        lazyColumnNode.onChildAt(4).assert(hasText(images[1].description!!))
         lazyColumnNode.onChildAt(5).assert(
             hasText(
                 screenTestRule.activity.getString(R.string.by_author, images[1].userName)
