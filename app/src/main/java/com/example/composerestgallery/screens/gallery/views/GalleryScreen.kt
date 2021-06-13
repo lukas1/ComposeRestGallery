@@ -4,10 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -45,14 +42,20 @@ fun GalleryScreen(viewModel: GalleryViewModel) {
         ) { images ->
             when (state.galleryViewMode) {
                 GalleryViewMode.LIST -> LazyColumn {
-                    items(images) { image ->
+                    itemsIndexed(images) { index, image ->
+                        if (index == images.lastIndex) {
+                            viewModel.loadNextPage()
+                        }
                         GalleryListImage(image = image)
                     }
                 }
                 GalleryViewMode.GRID -> LazyVerticalGrid(
                     cells = GridCells.Adaptive(Dp(150f)),
                 ) {
-                    items(images) { image ->
+                    itemsIndexed(images) { index, image ->
+                        if (index == images.lastIndex) {
+                            viewModel.loadNextPage()
+                        }
                         GalleryListImage(image = image)
                     }
                 }

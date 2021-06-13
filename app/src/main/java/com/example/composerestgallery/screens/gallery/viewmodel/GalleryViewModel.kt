@@ -31,19 +31,35 @@ class GalleryViewModel @Inject constructor(
         refresh()
     }
 
-    fun refresh() {
-        viewModelScope.launch {
-            _state.nextState { copy(images = LoadingState.Loading) }
+    private suspend fun loadPage() {
+        _state.value.nextGalleryPageKey?.let { loadPage(it) }
+    }
 
+    private suspend fun loadPage(page: Int) {
+        try {
+            val newImages = galleryService.getPhotos(page)
             _state.nextState {
                 copy(
-                    images = try {
-                        LoadingState.Loaded(galleryService.getPhotos())
-                    } catch (e: Exception) {
-                        LoadingState.Error
-                    }
+                    images = LoadingState.Loaded((images.loadedValue ?: emptyList()) + newImages),
+                    nextGalleryPageKey = if (newImages.isEmpty()) null else page + 1
                 )
             }
+        } catch (e: Exception) {
+            _state.nextState { copy(images = LoadingState.Error) }
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            _state.nextState { copy(images = LoadingState.Loading, nextGalleryPageKey = 1) }
+
+            loadPage()
+        }
+    }
+
+    fun loadNextPage() {
+        viewModelScope.launch {
+            loadPage()
         }
     }
 

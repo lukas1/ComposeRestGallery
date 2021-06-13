@@ -23,9 +23,9 @@ class GalleryViewModelTest {
             userName = "user1"
         ),
         GalleryImage(
-            url = "url1",
-            description = "desc1",
-            userName = "user1"
+            url = "url2",
+            description = "desc2",
+            userName = "user2"
         ),
     )
 
@@ -42,7 +42,9 @@ class GalleryViewModelTest {
     fun loadingState() {
         var continuation: Continuation<List<GalleryImage>>? = null
         val mockGalleryService = object : GalleryService {
-            override suspend fun getPhotos(): List<GalleryImage> = suspendCancellableCoroutine {
+            override suspend fun getPhotos(
+                page: Int?, perPage: Int
+            ): List<GalleryImage> = suspendCancellableCoroutine {
                 continuation = it
             }
         }
@@ -55,7 +57,10 @@ class GalleryViewModelTest {
 
         requireNotNull(continuation).resume(images)
         assertEquals(
-            GalleryState(images = LoadingState.Loaded(images)),
+            GalleryState(
+                images = LoadingState.Loaded(images),
+                nextGalleryPageKey = 2
+            ),
             viewModel.state.value
         )
     }
@@ -64,7 +69,9 @@ class GalleryViewModelTest {
     fun errorWithRetry() {
         var continuation: Continuation<List<GalleryImage>>? = null
         val mockGalleryService = object : GalleryService {
-            override suspend fun getPhotos(): List<GalleryImage> = suspendCancellableCoroutine {
+            override suspend fun getPhotos(
+                page: Int?, perPage: Int
+            ): List<GalleryImage> = suspendCancellableCoroutine {
                 continuation = it
             }
         }
@@ -77,7 +84,10 @@ class GalleryViewModelTest {
 
         requireNotNull(continuation).resumeWithException(IllegalStateException())
         assertEquals(
-            GalleryState(images = LoadingState.Error),
+            GalleryState(
+                images = LoadingState.Error,
+                nextGalleryPageKey = 1
+            ),
             viewModel.state.value
         )
 
@@ -85,7 +95,10 @@ class GalleryViewModelTest {
 
         requireNotNull(continuation).resume(images)
         assertEquals(
-            GalleryState(images = LoadingState.Loaded(images)),
+            GalleryState(
+                images = LoadingState.Loaded(images),
+                nextGalleryPageKey = 2
+            ),
             viewModel.state.value
         )
     }
@@ -93,7 +106,9 @@ class GalleryViewModelTest {
     @Test
     fun toggleViewMode() {
         val mockGalleryService = object : GalleryService {
-            override suspend fun getPhotos(): List<GalleryImage> = images
+            override suspend fun getPhotos(
+                page: Int?, perPage: Int
+            ): List<GalleryImage> = images
         }
 
         val viewModel = viewModel(mockGalleryService)
@@ -130,7 +145,9 @@ class GalleryViewModelTest {
     @Test
     fun viewModeFromStateHandleIsApplied() {
         val mockGalleryService = object : GalleryService {
-            override suspend fun getPhotos(): List<GalleryImage> = images
+            override suspend fun getPhotos(
+                page: Int?, perPage: Int
+            ): List<GalleryImage> = images
         }
 
         savedStateHandle.set(GalleryViewModel.viewModeStateHandleKey, GalleryViewMode.GRID)
@@ -142,6 +159,99 @@ class GalleryViewModelTest {
         assertEquals(
             GalleryViewMode.GRID,
             viewModel.state.value.galleryViewMode
+        )
+    }
+
+    @Test
+    fun loadingNextPage() {
+        val firstPage = listOf(images.first())
+        val secondPage = listOf(images.last())
+        val mockGalleryService = object : GalleryService {
+            override suspend fun getPhotos(
+                page: Int?, perPage: Int
+            ): List<GalleryImage> = when (page) {
+                1 -> firstPage
+                2 -> secondPage
+                else -> listOf()
+            }
+        }
+
+        val viewModel = viewModel(mockGalleryService)
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(firstPage),
+                nextGalleryPageKey = 2
+            ),
+            viewModel.state.value
+        )
+
+        viewModel.loadNextPage()
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(firstPage + secondPage),
+                nextGalleryPageKey = 3
+            ),
+            viewModel.state.value
+        )
+
+        viewModel.loadNextPage()
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(firstPage + secondPage),
+                nextGalleryPageKey = null
+            ),
+            viewModel.state.value
+        )
+    }
+
+    @Test
+    fun refreshResetsPaging() {
+        val firstPage = listOf(images.first())
+        val secondPage = listOf(images.last())
+        val mockGalleryService = object : GalleryService {
+            override suspend fun getPhotos(
+                page: Int?, perPage: Int
+            ): List<GalleryImage> = when (page) {
+                1 -> firstPage
+                2 -> secondPage
+                else -> listOf()
+            }
+        }
+
+        val viewModel = viewModel(mockGalleryService)
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(firstPage),
+                nextGalleryPageKey = 2
+            ),
+            viewModel.state.value
+        )
+
+        viewModel.loadNextPage()
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(firstPage + secondPage),
+                nextGalleryPageKey = 3
+            ),
+            viewModel.state.value
+        )
+
+        viewModel.loadNextPage()
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(firstPage + secondPage),
+                nextGalleryPageKey = null
+            ),
+            viewModel.state.value
+        )
+
+        viewModel.refresh()
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(firstPage),
+                nextGalleryPageKey = 2
+            ),
+            viewModel.state.value
         )
     }
 }

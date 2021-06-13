@@ -4,5 +4,6 @@ import com.example.composerestgallery.shared.model.LoadingState
 
 data class GalleryState(
     val images: LoadingState<List<GalleryImage>>,
-    val galleryViewMode: GalleryViewMode = GalleryViewMode.LIST
+    val galleryViewMode: GalleryViewMode = GalleryViewMode.LIST,
+    val nextGalleryPageKey: Int? = 1
 )

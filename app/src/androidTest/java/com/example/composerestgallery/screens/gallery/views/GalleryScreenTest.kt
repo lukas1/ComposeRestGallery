@@ -25,9 +25,9 @@ class GalleryScreenTest {
             userName = "user1"
         ),
         GalleryImage(
-            url = "url1",
-            description = "desc1",
-            userName = "user1"
+            url = "url2",
+            description = "desc2",
+            userName = "user2"
         ),
     )
 
@@ -38,7 +38,10 @@ class GalleryScreenTest {
     fun imagesDisplayed() {
         var continuation: Continuation<List<GalleryImage>>? = null
         val mockGalleryService = object : GalleryService {
-            override suspend fun getPhotos(): List<GalleryImage> = suspendCancellableCoroutine {
+            override suspend fun getPhotos(
+                page: Int?,
+                perPage: Int
+            ): List<GalleryImage> = suspendCancellableCoroutine {
                 continuation = it
             }
         }
@@ -80,13 +83,52 @@ class GalleryScreenTest {
             )
         )
         lazyColumnNode.onChildAt(6).assertDoesNotExist()
+
+        // Simulates next page load by scrolling to bottom
+        val nextPageImages = listOf(
+            GalleryImage(
+                url = "url3",
+                description = "desc3",
+                userName = "user3"
+            ),
+            GalleryImage(
+                url = "url4",
+                description = "desc4",
+                userName = "user4"
+            ),
+        )
+        requireNotNull(continuation).resume(nextPageImages)
+
+        // New two gallery images should be added to layout
+        lazyColumnNode.onChildAt(6).assert(
+            hasContentDescription(nextPageImages[0].description)
+        )
+        lazyColumnNode.onChildAt(7).assert(hasText(nextPageImages[0].description))
+        lazyColumnNode.onChildAt(8).assert(
+            hasText(
+                screenTestRule.activity.getString(R.string.by_author, nextPageImages[0].userName)
+            )
+        )
+
+        lazyColumnNode.onChildAt(9).assert(
+            hasContentDescription(nextPageImages[1].description)
+        )
+        lazyColumnNode.onChildAt(10).assert(hasText(nextPageImages[1].description))
+        lazyColumnNode.onChildAt(11).assert(
+            hasText(
+                screenTestRule.activity.getString(R.string.by_author, nextPageImages[1].userName)
+            )
+        )
     }
 
     @Test
     fun errorWithRetry() {
         var continuation: Continuation<List<GalleryImage>>? = null
         val mockGalleryService = object : GalleryService {
-            override suspend fun getPhotos(): List<GalleryImage> = suspendCancellableCoroutine {
+            override suspend fun getPhotos(
+                page: Int?,
+                perPage: Int
+            ): List<GalleryImage> = suspendCancellableCoroutine {
                 continuation = it
             }
         }
@@ -151,7 +193,10 @@ class GalleryScreenTest {
     @Test
     fun listModeToggle() {
         val mockGalleryService = object : GalleryService {
-            override suspend fun getPhotos(): List<GalleryImage> = suspendCancellableCoroutine {
+            override suspend fun getPhotos(
+                page: Int?,
+                perPage: Int
+            ): List<GalleryImage> = suspendCancellableCoroutine {
                 images
             }
         }
