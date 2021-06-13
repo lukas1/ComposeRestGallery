@@ -51,15 +51,8 @@ fun GalleryScreen(viewModel: GalleryViewModel) {
                         GalleryListImage(image = image, height = 250f)
                     }
 
-                    // Bottom loading view
                     item {
-                        LoadingView(
-                            loadingState = state.nextPageLoadingState,
-                            modifier = Modifier.fillMaxWidth(),
-                            onRetry = { viewModel.retryLoadingPage() }
-                        ) {
-                            // Intentionally empty success layout
-                        }
+                        GalleryBottomLoadingItem(viewModel = viewModel)
                     }
                 }
                 GalleryViewMode.GRID -> LazyVerticalGrid(
@@ -74,15 +67,12 @@ fun GalleryScreen(viewModel: GalleryViewModel) {
                         GalleryListImage(image = image, height = 150f)
                     }
 
-                    // Bottom loading view
                     item {
-                        LoadingView(
-                            loadingState = state.nextPageLoadingState,
-                            modifier = Modifier.fillMaxWidth(),
-                            onRetry = { viewModel.retryLoadingPage() }
-                        ) {
-                            // Intentionally empty success layout
-                        }
+                        // AFAIK LazyVerticalGrid doesn't have option to stretch item to
+                        // multiple columns as is possible in GridLayoutManager
+                        // LazyVerticalGrid is still experimental API, so maybe it will be possible
+                        // later.
+                        GalleryBottomLoadingItem(viewModel = viewModel)
                     }
                 }
             }
