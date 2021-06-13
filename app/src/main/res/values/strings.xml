@@ -4,4 +4,6 @@
     <string name="error">Error occurred</string>
     <string name="retry">Retry</string>
     <string name="by_author">by: %1$s</string>
+    <string name="toggle_to_list_description">Toggle to List View</string>
+    <string name="toggle_to_grid_description">Toggle to Grid View</string>
 </resources>
