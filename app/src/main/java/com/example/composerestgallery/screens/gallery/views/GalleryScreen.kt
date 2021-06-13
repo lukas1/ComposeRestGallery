@@ -8,14 +8,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryState
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryViewModel
+import com.example.composerestgallery.shared.model.LoadingState
 
 @Composable
 fun GalleryScreen(viewModel: GalleryViewModel) {
     val state: GalleryState by viewModel.state.collectAsState()
 
-    LazyColumn {
-        items(state.images) { image ->
-            Text(text = image.description)
+    LoadingView(
+        loadingState = state.images,
+        onRetry = { viewModel.retry() }
+    ) { images ->
+        LazyColumn {
+            items(images) { image ->
+                Text(text = image.description)
+            }
         }
     }
 }
