@@ -50,12 +50,15 @@ class GalleryScreenTest {
             GalleryScreen(viewModel = GalleryViewModel(SavedStateHandle(), mockGalleryService))
         }
 
+        // Screen is created, new page is loading, so loading view is visible
         screenTestRule
             .onNode(hasText(screenTestRule.activity.getString(R.string.loading)))
             .assertExists()
 
+        // simulates that images are loaded
         requireNotNull(continuation).resume(images)
 
+        // no loading or error should be displayed
         screenTestRule
             .onNode(hasText(screenTestRule.activity.getString(R.string.loading)))
             .assertDoesNotExist()
@@ -64,6 +67,7 @@ class GalleryScreenTest {
             .onNode(hasText(screenTestRule.activity.getString(R.string.error)))
             .assertDoesNotExist()
 
+        // images are expected to be displayed
         val lazyColumnNode = screenTestRule
             .onRoot()
             .onChildAt(1)
@@ -82,6 +86,7 @@ class GalleryScreenTest {
                 screenTestRule.activity.getString(R.string.by_author, images[1].userName)
             )
         )
+        // There's no other image displayed
         lazyColumnNode.onChildAt(6).assertDoesNotExist()
 
         // Simulates next page load by scrolling to bottom
@@ -137,20 +142,25 @@ class GalleryScreenTest {
             GalleryScreen(viewModel = GalleryViewModel(SavedStateHandle(), mockGalleryService))
         }
 
+        // Screen is created, new page is loading, so loading view is visible
         screenTestRule
             .onNode(hasText(screenTestRule.activity.getString(R.string.loading)))
             .assertExists()
 
+        // Simulates error when loading images
         requireNotNull(continuation).resumeWithException(IllegalStateException())
 
+        // Loading should no longer be displayed
         screenTestRule
             .onNode(hasText(screenTestRule.activity.getString(R.string.loading)))
             .assertDoesNotExist()
 
+        // Error view should be visible
         screenTestRule
             .onNode(hasText(screenTestRule.activity.getString(R.string.error)))
             .assertExists()
 
+        // Simulates click on Retry button that invokes new loading with new loading view
         screenTestRule
             .onNode(hasText(screenTestRule.activity.getString(R.string.retry)))
             .performClick()
@@ -159,8 +169,10 @@ class GalleryScreenTest {
             .onNode(hasText(screenTestRule.activity.getString(R.string.loading)))
             .assertExists()
 
+        // Simulates successful response from server
         requireNotNull(continuation).resume(images)
 
+        // Now no loading or error message should be displayed
         screenTestRule
             .onNode(hasText(screenTestRule.activity.getString(R.string.loading)))
             .assertDoesNotExist()
@@ -169,6 +181,7 @@ class GalleryScreenTest {
             .onNode(hasText(screenTestRule.activity.getString(R.string.error)))
             .assertDoesNotExist()
 
+        // Images are expected to be displayed
         val lazyColumnNode = screenTestRule
             .onRoot()
             .onChildAt(1)
@@ -187,6 +200,7 @@ class GalleryScreenTest {
                 screenTestRule.activity.getString(R.string.by_author, images[1].userName)
             )
         )
+        // There's no other image displayed
         lazyColumnNode.onChildAt(6).assertDoesNotExist()
     }
 
@@ -205,6 +219,7 @@ class GalleryScreenTest {
             GalleryScreen(viewModel = GalleryViewModel(SavedStateHandle(), mockGalleryService))
         }
 
+        // Screen starts in list mode with button to switch to grid mode
         val toGridNode = screenTestRule
             .onNode(
                 hasContentDescription(
@@ -212,7 +227,10 @@ class GalleryScreenTest {
                 )
             )
 
+        // Button to switch to GRID mode should be displayed
         toGridNode.assertExists()
+
+        // Button to switch to LIST mode is NOT displayed
         screenTestRule
             .onNode(
                 hasContentDescription(
@@ -221,6 +239,7 @@ class GalleryScreenTest {
             )
             .assertDoesNotExist()
 
+        // Switch to GRID mode
         toGridNode.performClick()
 
         val toListNode = screenTestRule
@@ -230,7 +249,10 @@ class GalleryScreenTest {
                 )
             )
 
+        // In GRID mode show button to switch to LIST mode
         toListNode.assertExists()
+
+        // In GRID mode don't show button to LIST mode
         screenTestRule
             .onNode(
                 hasContentDescription(
@@ -239,8 +261,10 @@ class GalleryScreenTest {
             )
             .assertDoesNotExist()
 
+        // Switch to LIST mode again
         toGridNode.performClick()
 
+        // In LIST mode sho button to GRID mode, hide button to LIST mode
         toGridNode.assertExists()
         screenTestRule
             .onNode(
@@ -249,7 +273,5 @@ class GalleryScreenTest {
                 )
             )
             .assertDoesNotExist()
-
-        toGridNode.performClick()
     }
 }

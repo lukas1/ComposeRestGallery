@@ -24,6 +24,7 @@ class LoadingViewKtTest {
             }
         }
 
+        // Mode is set to LOADING, so only loading view should be displayed, other views are hidden
         screenTestRule
             .onRoot()
             .onChild()
@@ -48,6 +49,7 @@ class LoadingViewKtTest {
             }
         }
 
+        // Mode is set to ERROR, so only Error view should be displayed, other views are hidden
         screenTestRule
             .onNode(hasText(screenTestRule.activity.getString(R.string.error)))
             .assertExists()
@@ -78,6 +80,8 @@ class LoadingViewKtTest {
             }
         }
 
+        // Mode is set to LOADED, so only view with loaded data should be displayed,
+        // other views are hidden
         screenTestRule
             .onNode(hasText(screenTestRule.activity.getString(R.string.loading)))
             .assertDoesNotExist()

@@ -50,11 +50,14 @@ class GalleryViewModelTest {
         }
 
         val viewModel = viewModel(mockGalleryService)
+        // View Model is created, so started to load data first, images is in Loading state
         assertEquals(
             GalleryState(images = LoadingState.Loading),
             viewModel.state.value
         )
 
+        // Simulates images loaded. images should be passed to state,
+        // index of next page to load should be increased
         requireNotNull(continuation).resume(images)
         assertEquals(
             GalleryState(
@@ -82,6 +85,7 @@ class GalleryViewModelTest {
             viewModel.state.value
         )
 
+        // Simulates error loading images. Index of next page to load should not be changed
         requireNotNull(continuation).resumeWithException(IllegalStateException())
         assertEquals(
             GalleryState(
@@ -91,8 +95,9 @@ class GalleryViewModelTest {
             viewModel.state.value
         )
 
+        // When user wants to retry and it succeeds, proceed as if it succeeded the first time
+        // Images are passed to state, index of next page to load is increased
         viewModel.refresh()
-
         requireNotNull(continuation).resume(images)
         assertEquals(
             GalleryState(
@@ -111,6 +116,8 @@ class GalleryViewModelTest {
             ): List<GalleryImage> = images
         }
 
+        // Toggling view mode between GRID and LIST mode does work, but it doesn't affect
+        // other state properties
         val viewModel = viewModel(mockGalleryService)
         assertEquals(
             LoadingState.Loaded(images),
@@ -150,6 +157,8 @@ class GalleryViewModelTest {
             ): List<GalleryImage> = images
         }
 
+        // When creating new instance of view model with restored state instance,
+        // view mode is restored
         savedStateHandle.set(GalleryViewModel.viewModeStateHandleKey, GalleryViewMode.GRID)
         val viewModel = viewModel(mockGalleryService)
         assertEquals(
@@ -166,16 +175,26 @@ class GalleryViewModelTest {
     fun loadingNextPage() {
         val firstPage = listOf(images.first())
         val secondPage = listOf(images.last())
+        var loadedLastPageOnce = false
         val mockGalleryService = object : GalleryService {
             override suspend fun getPhotos(
                 page: Int?, perPage: Int
             ): List<GalleryImage> = when (page) {
                 1 -> firstPage
                 2 -> secondPage
-                else -> listOf()
+                else -> listOf<GalleryImage>().also {
+                    if (!loadedLastPageOnce) {
+                        loadedLastPageOnce = true
+                    } else {
+                        // To verify, that multiple calls to viewModel::loadNextPage on last page
+                        // do not cause any additional loads from data service
+                        throw IllegalStateException()
+                    }
+                }
             }
         }
 
+        // First page is loaded automatically
         val viewModel = viewModel(mockGalleryService)
         assertEquals(
             GalleryState(
@@ -185,6 +204,8 @@ class GalleryViewModelTest {
             viewModel.state.value
         )
 
+        // When next page is loaded, it is appended to current list of images,
+        // index of next page to load is increased
         viewModel.loadNextPage()
         assertEquals(
             GalleryState(
@@ -194,6 +215,20 @@ class GalleryViewModelTest {
             viewModel.state.value
         )
 
+        // When reaching last page (return list of images is empty), list of images is not changed.
+        // Lack of next pages to load is represented by null
+        assertEquals(false, loadedLastPageOnce)
+        viewModel.loadNextPage()
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(firstPage + secondPage),
+                nextGalleryPageKey = null
+            ),
+            viewModel.state.value
+        )
+        assertEquals(true, loadedLastPageOnce)
+
+        // No further call is made to load images, otherwise the mock would throw exception
         viewModel.loadNextPage()
         assertEquals(
             GalleryState(

@@ -7,6 +7,9 @@ import org.junit.Test
 class MutableStateFlowUtilsKtTest {
     @Test
     fun nextState() {
+        // This method should enable only partial updates to state -> updating only one property of
+        // state. Therefore in this test state is updated only partially in each step and confirmed
+        // that only partial update on state happens.
         val firstFirst = 1
         val firstSecond = "a"
 
