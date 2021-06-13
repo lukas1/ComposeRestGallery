@@ -33,6 +33,7 @@ class GalleryViewModel @Inject constructor(
     }
 
     private suspend fun loadPage() = with(state.value) {
+        // To avoid duplicate requests, allow only one request at a time
         if (images !is LoadingState.Loading && nextPageLoadingState !is LoadingState.Loading) {
             nextGalleryPageKey?.let { loadPage(it) }
         }
@@ -51,8 +52,9 @@ class GalleryViewModel @Inject constructor(
 
             val newImages = galleryService.getPhotos(page)
             _state.nextState {
-                copy(
-                    images = LoadingState.Loaded((images.loadedValue ?: emptyList()) + newImages),
+                val currentImages = images.loadedValue ?: emptyList()
+                return@nextState copy(
+                    images = LoadingState.Loaded(currentImages + newImages),
                     nextGalleryPageKey = if (newImages.isEmpty()) null else page + 1,
                     nextPageLoadingState = LoadingState.Loaded(Unit)
                 )
@@ -82,6 +84,16 @@ class GalleryViewModel @Inject constructor(
     }
 
     fun loadNextPage() {
+        viewModelScope.launch {
+            // This method is called when scrolled to bottom, but if last item is error item
+            // No request should be made until Retry button is pressed
+            if (_state.value.nextPageLoadingState is LoadingState.Loaded) {
+                loadPage()
+            }
+        }
+    }
+
+    fun retryLoadingPage() {
         viewModelScope.launch {
             loadPage()
         }

@@ -56,7 +56,7 @@ fun GalleryScreen(viewModel: GalleryViewModel) {
                         LoadingView(
                             loadingState = state.nextPageLoadingState,
                             modifier = Modifier.fillMaxWidth(),
-                            onRetry = { viewModel.loadNextPage() }
+                            onRetry = { viewModel.retryLoadingPage() }
                         ) {
                             // Intentionally empty success layout
                         }
@@ -79,7 +79,7 @@ fun GalleryScreen(viewModel: GalleryViewModel) {
                         LoadingView(
                             loadingState = state.nextPageLoadingState,
                             modifier = Modifier.fillMaxWidth(),
-                            onRetry = { viewModel.loadNextPage() }
+                            onRetry = { viewModel.retryLoadingPage() }
                         ) {
                             // Intentionally empty success layout
                         }

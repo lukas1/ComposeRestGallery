@@ -405,15 +405,18 @@ class GalleryViewModelTest {
 
     @Test
     fun errorInPaging() {
+        var callCount = 0
         var continuation: Continuation<List<GalleryImage>>? = null
         val mockGalleryService = object : GalleryService {
             override suspend fun getPhotos(
                 page: Int?, perPage: Int
             ): List<GalleryImage> = suspendCancellableCoroutine {
+                callCount += 1
                 continuation = it
             }
         }
 
+        assertEquals(0, callCount)
         val viewModel = viewModel(mockGalleryService)
         assertEquals(
             GalleryState(images = LoadingState.Loading),
@@ -430,9 +433,11 @@ class GalleryViewModelTest {
             ),
             viewModel.state.value
         )
+        assertEquals(1, callCount)
 
         // Attempt loading next page
         viewModel.loadNextPage()
+        assertEquals(2, callCount)
 
         // Simulates error loading images. Expected Error state for nextPageLoadingState
         requireNotNull(continuation).resumeWithException(IllegalStateException())
@@ -442,6 +447,24 @@ class GalleryViewModelTest {
                 images = LoadingState.Loaded(images),
                 nextGalleryPageKey = 2,
                 nextPageLoadingState = LoadingState.Error
+            ),
+            viewModel.state.value
+        )
+
+        viewModel.loadNextPage()
+        assertEquals(2, callCount)
+
+        viewModel.retryLoadingPage()
+        assertEquals(3, callCount)
+
+        // Loading next page is successful
+        requireNotNull(continuation).resume(images)
+
+        assertEquals(
+            GalleryState(
+                images = LoadingState.Loaded(images + images),
+                nextGalleryPageKey = 3,
+                nextPageLoadingState = LoadingState.Loaded(Unit)
             ),
             viewModel.state.value
         )
