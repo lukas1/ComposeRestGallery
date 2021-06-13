@@ -19,7 +19,7 @@ class LoadingViewKtTest {
     fun loadingState() {
         val something = "something"
         screenTestRule.setContent {
-            LoadingView(loadingState = LoadingState.Loading, {}) {
+            LoadingView(loadingState = LoadingState.Loading, onRetry = {}) {
                 Text(text = something)
             }
         }
@@ -43,7 +43,7 @@ class LoadingViewKtTest {
         val something = "something"
         var hasRetried = false
         screenTestRule.setContent {
-            LoadingView(loadingState = LoadingState.Error, { hasRetried = true }) {
+            LoadingView(loadingState = LoadingState.Error, onRetry = { hasRetried = true }) {
                 Text(text = something)
             }
         }
@@ -73,7 +73,7 @@ class LoadingViewKtTest {
     fun loadedState() {
         val expectedText = "expected"
         screenTestRule.setContent {
-            LoadingView(loadingState = LoadingState.Loaded(expectedText), {}) { value ->
+            LoadingView(loadingState = LoadingState.Loaded(expectedText), onRetry = {}) { value ->
                 Text(text = value)
             }
         }
