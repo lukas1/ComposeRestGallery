@@ -8,8 +8,8 @@ class LoadingStateTest {
 
     @Test
     fun getLoadedValue() {
-        assertEquals(null, LoadingState.Loading.loadedValue)
-        assertEquals(null, LoadingState.Error.loadedValue)
+        assertNull(LoadingState.Loading.loadedValue)
+        assertNull(LoadingState.Error.loadedValue)
         val testValue = "test"
         assertEquals(testValue, LoadingState.Loaded(testValue).loadedValue)
     }

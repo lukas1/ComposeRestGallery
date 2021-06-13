@@ -6,7 +6,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import com.example.composerestgallery.MainActivity
 import com.example.composerestgallery.R
 import com.example.composerestgallery.shared.model.LoadingState
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 
 import org.junit.Test
