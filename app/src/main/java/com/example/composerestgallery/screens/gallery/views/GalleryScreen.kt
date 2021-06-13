@@ -46,7 +46,9 @@ fun GalleryScreen(viewModel: GalleryViewModel) {
                         if (index == images.lastIndex) {
                             viewModel.loadNextPage()
                         }
-                        GalleryListImage(image = image)
+                        // Height is just random value so that each element
+                        // has the same size
+                        GalleryListImage(image = image, height = 250f)
                     }
                 }
                 GalleryViewMode.GRID -> LazyVerticalGrid(
@@ -56,7 +58,9 @@ fun GalleryScreen(viewModel: GalleryViewModel) {
                         if (index == images.lastIndex) {
                             viewModel.loadNextPage()
                         }
-                        GalleryListImage(image = image)
+                        // Height is just random value so that each element
+                        // has the same size
+                        GalleryListImage(image = image, height = 150f)
                     }
                 }
             }
