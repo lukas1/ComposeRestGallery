@@ -9,7 +9,9 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryViewModel
 import com.example.composerestgallery.screens.gallery.views.GalleryScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val galleryViewModel by viewModels<GalleryViewModel>()
     @ExperimentalFoundationApi

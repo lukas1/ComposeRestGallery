@@ -1,23 +1,33 @@
 package com.example.composerestgallery.screens.gallery.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.composerestgallery.api.GalleryService
-import com.example.composerestgallery.api.createRetrofit
 import com.example.composerestgallery.shared.model.LoadingState
 import com.example.composerestgallery.utils.nextState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class GalleryViewModel(
-    private val galleryService: GalleryService = createRetrofit().create(GalleryService::class.java)
+@HiltViewModel
+class GalleryViewModel @Inject constructor(
+    private val stateHandle: SavedStateHandle,
+    private val galleryService: GalleryService
 ) : ViewModel() {
+    companion object {
+        const val viewModeStateHandleKey = "viewMode"
+    }
     private val _state = MutableStateFlow(GalleryState(images = LoadingState.Loading))
     val state: StateFlow<GalleryState> = _state.asStateFlow()
 
     init {
+        stateHandle.get<GalleryViewMode>(viewModeStateHandleKey)?.let { savedViewMode ->
+            _state.nextState { copy(galleryViewMode = savedViewMode) }
+        }
         refresh()
     }
 
@@ -42,6 +52,7 @@ class GalleryViewModel(
             GalleryViewMode.LIST -> GalleryViewMode.GRID
             GalleryViewMode.GRID -> GalleryViewMode.LIST
         }
+        stateHandle.set(viewModeStateHandleKey, newMode)
         _state.nextState { copy(galleryViewMode = newMode) }
     }
 }

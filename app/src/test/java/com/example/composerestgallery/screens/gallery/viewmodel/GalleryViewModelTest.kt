@@ -1,5 +1,6 @@
 package com.example.composerestgallery.screens.gallery.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import com.example.composerestgallery.TestCoroutineRule
 import com.example.composerestgallery.api.GalleryService
 import com.example.composerestgallery.shared.model.LoadingState
@@ -28,9 +29,12 @@ class GalleryViewModelTest {
         ),
     )
 
+    private val savedStateHandle = SavedStateHandle()
+
     private fun viewModel(
         galleryService: GalleryService
     ): GalleryViewModel = GalleryViewModel(
+        stateHandle = savedStateHandle,
         galleryService = galleryService
     )
 
@@ -119,6 +123,24 @@ class GalleryViewModelTest {
         )
         assertEquals(
             GalleryViewMode.LIST,
+            viewModel.state.value.galleryViewMode
+        )
+    }
+
+    @Test
+    fun viewModeFromStateHandleIsApplied() {
+        val mockGalleryService = object : GalleryService {
+            override suspend fun getPhotos(): List<GalleryImage> = images
+        }
+
+        savedStateHandle.set(GalleryViewModel.viewModeStateHandleKey, GalleryViewMode.GRID)
+        val viewModel = viewModel(mockGalleryService)
+        assertEquals(
+            LoadingState.Loaded(images),
+            viewModel.state.value.images
+        )
+        assertEquals(
+            GalleryViewMode.GRID,
             viewModel.state.value.galleryViewMode
         )
     }

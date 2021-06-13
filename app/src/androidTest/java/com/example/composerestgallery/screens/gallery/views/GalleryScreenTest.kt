@@ -3,6 +3,7 @@ package com.example.composerestgallery.screens.gallery.views
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.lifecycle.SavedStateHandle
 import com.example.composerestgallery.MainActivity
 import com.example.composerestgallery.R
 import com.example.composerestgallery.api.GalleryService
@@ -43,7 +44,7 @@ class GalleryScreenTest {
         }
 
         screenTestRule.setContent {
-            GalleryScreen(viewModel = GalleryViewModel(mockGalleryService))
+            GalleryScreen(viewModel = GalleryViewModel(SavedStateHandle(), mockGalleryService))
         }
 
         screenTestRule
@@ -91,7 +92,7 @@ class GalleryScreenTest {
         }
 
         screenTestRule.setContent {
-            GalleryScreen(viewModel = GalleryViewModel(mockGalleryService))
+            GalleryScreen(viewModel = GalleryViewModel(SavedStateHandle(), mockGalleryService))
         }
 
         screenTestRule
@@ -156,7 +157,7 @@ class GalleryScreenTest {
         }
 
         screenTestRule.setContent {
-            GalleryScreen(viewModel = GalleryViewModel(mockGalleryService))
+            GalleryScreen(viewModel = GalleryViewModel(SavedStateHandle(), mockGalleryService))
         }
 
         val toGridNode = screenTestRule

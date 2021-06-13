@@ -1,12 +1,15 @@
 plugins {
     id("com.android.application")
     id("kotlin-android")
+    id("dagger.hilt.android.plugin")
+    kotlin("kapt")
     kotlin("plugin.serialization") version "1.5.0"
 }
 
 val kotlinVersion: String by rootProject.extra
 val coroutinesVersion: String by rootProject.extra
 val composeVersion: String by rootProject.extra
+val hiltVersion: String by rootProject.extra
 
 android {
     compileSdk = 30
@@ -45,6 +48,10 @@ android {
     }
 }
 
+kapt {
+    correctErrorTypes = true
+}
+
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("androidx.core:core-ktx:1.5.0")
@@ -70,6 +77,9 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+
+    implementation("com.google.dagger:hilt-android:$hiltVersion")
+    kapt("com.google.dagger:hilt-compiler:$hiltVersion")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.2")
