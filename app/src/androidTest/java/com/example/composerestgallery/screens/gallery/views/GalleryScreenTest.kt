@@ -1,5 +1,6 @@
 package com.example.composerestgallery.screens.gallery.views
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import com.example.composerestgallery.MainActivity
@@ -14,6 +15,7 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
+@ExperimentalFoundationApi
 class GalleryScreenTest {
     private val images = listOf(
         GalleryImage(

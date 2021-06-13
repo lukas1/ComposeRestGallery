@@ -1,20 +1,24 @@
 package com.example.composerestgallery.screens.gallery.views
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import com.example.composerestgallery.R
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryState
+import com.example.composerestgallery.screens.gallery.viewmodel.GalleryViewMode
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryViewModel
 
+@ExperimentalFoundationApi
 @Composable
 fun GalleryScreen(viewModel: GalleryViewModel) {
     val state: GalleryState by viewModel.state.collectAsState()
@@ -39,13 +43,18 @@ fun GalleryScreen(viewModel: GalleryViewModel) {
                 .fillMaxHeight(),
             onRetry = { viewModel.refresh() }
         ) { images ->
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-            ) {
-                items(images) { image ->
-                    GalleryListImage(image = image)
+            when (state.galleryViewMode) {
+                GalleryViewMode.LIST -> LazyColumn {
+                    items(images) { image ->
+                        GalleryListImage(image = image)
+                    }
+                }
+                GalleryViewMode.GRID -> LazyVerticalGrid(
+                    cells = GridCells.Adaptive(Dp(150f)),
+                ) {
+                    items(images) { image ->
+                        GalleryListImage(image = image)
+                    }
                 }
             }
         }
