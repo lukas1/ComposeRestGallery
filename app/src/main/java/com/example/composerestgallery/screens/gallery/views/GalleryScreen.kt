@@ -40,8 +40,16 @@ fun GalleryScreen(viewModel: GalleryViewModel) {
                 .fillMaxHeight(),
             onRetry = { viewModel.refresh() }
         ) { images ->
+            // To keep scroll position when switching between GRID and LIST
+            // Unfortunately it doesn't work well.
+            // Workaround would be possible using ViewModel as a holder of last value of
+            // first visible item, but it's out of scope for this demo
+            val lazyListState = rememberLazyListState()
+
             when (state.galleryViewMode) {
-                GalleryViewMode.LIST -> LazyColumn {
+                GalleryViewMode.LIST -> LazyColumn(
+                    state = lazyListState,
+                ) {
                     itemsIndexed(images) { index, image ->
                         if (index == images.lastIndex) {
                             viewModel.loadNextPage()
@@ -57,6 +65,7 @@ fun GalleryScreen(viewModel: GalleryViewModel) {
                 }
                 GalleryViewMode.GRID -> LazyVerticalGrid(
                     cells = GridCells.Adaptive(Dp(150f)),
+                    state = lazyListState,
                 ) {
                     itemsIndexed(images) { index, image ->
                         if (index == images.lastIndex) {
