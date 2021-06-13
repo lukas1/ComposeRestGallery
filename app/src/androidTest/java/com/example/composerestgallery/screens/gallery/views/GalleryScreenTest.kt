@@ -1,11 +1,12 @@
-package com.example.composerestgallery
+package com.example.composerestgallery.screens.gallery.views
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import com.example.composerestgallery.MainActivity
+import com.example.composerestgallery.R
 import com.example.composerestgallery.api.GalleryService
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryImage
 import com.example.composerestgallery.screens.gallery.viewmodel.GalleryViewModel
-import com.example.composerestgallery.screens.gallery.views.GalleryScreen
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.junit.Rule
 import org.junit.Test
