@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.composerestgallery.api.GalleryService
 import com.example.composerestgallery.api.createRetrofit
 import com.example.composerestgallery.shared.model.LoadingState
+import com.example.composerestgallery.utils.nextState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,18 +23,25 @@ class GalleryViewModel(
 
     fun refresh() {
         viewModelScope.launch {
-            _state.emit(GalleryState(images = LoadingState.Loading))
+            _state.nextState { copy(images = LoadingState.Loading) }
 
-            _state.emit(
-                GalleryState(
+            _state.nextState {
+                copy(
                     images = try {
                         LoadingState.Loaded(galleryService.getPhotos())
                     } catch (e: Exception) {
                         LoadingState.Error
                     }
                 )
-            )
-
+            }
         }
+    }
+
+    fun toggleViewMode() {
+        val newMode = when (state.value.galleryViewMode) {
+            GalleryViewMode.LIST -> GalleryViewMode.GRID
+            GalleryViewMode.GRID -> GalleryViewMode.LIST
+        }
+        _state.nextState { copy(galleryViewMode = newMode) }
     }
 }

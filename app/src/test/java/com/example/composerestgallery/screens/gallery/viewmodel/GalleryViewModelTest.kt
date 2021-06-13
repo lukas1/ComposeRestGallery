@@ -4,7 +4,6 @@ import com.example.composerestgallery.TestCoroutineRule
 import com.example.composerestgallery.api.GalleryService
 import com.example.composerestgallery.shared.model.LoadingState
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
@@ -84,6 +83,43 @@ class GalleryViewModelTest {
         assertEquals(
             GalleryState(images = LoadingState.Loaded(images)),
             viewModel.state.value
+        )
+    }
+
+    @Test
+    fun toggleViewMode() {
+        val mockGalleryService = object : GalleryService {
+            override suspend fun getPhotos(): List<GalleryImage> = images
+        }
+
+        val viewModel = viewModel(mockGalleryService)
+        assertEquals(
+            LoadingState.Loaded(images),
+            viewModel.state.value.images
+        )
+        assertEquals(
+            GalleryViewMode.LIST,
+            viewModel.state.value.galleryViewMode
+        )
+
+        viewModel.toggleViewMode()
+        assertEquals(
+            LoadingState.Loaded(images),
+            viewModel.state.value.images
+        )
+        assertEquals(
+            GalleryViewMode.GRID,
+            viewModel.state.value.galleryViewMode
+        )
+
+        viewModel.toggleViewMode()
+        assertEquals(
+            LoadingState.Loaded(images),
+            viewModel.state.value.images
+        )
+        assertEquals(
+            GalleryViewMode.LIST,
+            viewModel.state.value.galleryViewMode
         )
     }
 }
