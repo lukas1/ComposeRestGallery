@@ -60,7 +60,7 @@ class GalleryScreenTest {
 
         val lazyColumnNode = screenTestRule
             .onRoot()
-            .onChild()
+            .onChildAt(1)
 
         lazyColumnNode.onChildAt(0).assert(hasContentDescription(images[0].description))
         lazyColumnNode.onChildAt(1).assert(hasText(images[0].description))
@@ -126,7 +126,7 @@ class GalleryScreenTest {
 
         val lazyColumnNode = screenTestRule
             .onRoot()
-            .onChild()
+            .onChildAt(1)
 
         lazyColumnNode.onChildAt(0).assert(hasContentDescription(images[0].description))
         lazyColumnNode.onChildAt(1).assert(hasText(images[0].description))
@@ -143,5 +143,65 @@ class GalleryScreenTest {
             )
         )
         lazyColumnNode.onChildAt(6).assertDoesNotExist()
+    }
+
+    @Test
+    fun listModeToggle() {
+        val mockGalleryService = object : GalleryService {
+            override suspend fun getPhotos(): List<GalleryImage> = suspendCancellableCoroutine {
+                images
+            }
+        }
+
+        screenTestRule.setContent {
+            GalleryScreen(viewModel = GalleryViewModel(mockGalleryService))
+        }
+
+        val toGridNode = screenTestRule
+            .onNode(
+                hasContentDescription(
+                    screenTestRule.activity.getString(R.string.toggle_to_grid_description)
+                )
+            )
+
+        toGridNode.assertExists()
+        screenTestRule
+            .onNode(
+                hasContentDescription(
+                    screenTestRule.activity.getString(R.string.toggle_to_list_description)
+                )
+            )
+            .assertDoesNotExist()
+
+        toGridNode.performClick()
+
+        val toListNode = screenTestRule
+            .onNode(
+                hasContentDescription(
+                    screenTestRule.activity.getString(R.string.toggle_to_list_description)
+                )
+            )
+
+        toListNode.assertExists()
+        screenTestRule
+            .onNode(
+                hasContentDescription(
+                    screenTestRule.activity.getString(R.string.toggle_to_grid_description)
+                )
+            )
+            .assertDoesNotExist()
+
+        toGridNode.performClick()
+
+        toGridNode.assertExists()
+        screenTestRule
+            .onNode(
+                hasContentDescription(
+                    screenTestRule.activity.getString(R.string.toggle_to_list_description)
+                )
+            )
+            .assertDoesNotExist()
+
+        toGridNode.performClick()
     }
 }
