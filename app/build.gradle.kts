@@ -65,6 +65,8 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.0-alpha07")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha06")
 
+    implementation("com.google.accompanist:accompanist-coil:0.11.1")
+
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")

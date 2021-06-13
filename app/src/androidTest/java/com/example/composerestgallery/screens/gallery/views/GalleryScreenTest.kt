@@ -62,9 +62,11 @@ class GalleryScreenTest {
             .onRoot()
             .onChild()
 
-        lazyColumnNode.onChildAt(0).assert(hasText(images[0].description))
-        lazyColumnNode.onChildAt(1).assert(hasText(images[1].description))
-        lazyColumnNode.onChildAt(2).assertDoesNotExist()
+        lazyColumnNode.onChildAt(0).assert(hasContentDescription(images[0].description))
+        lazyColumnNode.onChildAt(1).assert(hasText(images[0].description))
+        lazyColumnNode.onChildAt(2).assert(hasContentDescription(images[1].description))
+        lazyColumnNode.onChildAt(3).assert(hasText(images[1].description))
+        lazyColumnNode.onChildAt(4).assertDoesNotExist()
     }
 
     @Test
@@ -116,8 +118,10 @@ class GalleryScreenTest {
             .onRoot()
             .onChild()
 
-        lazyColumnNode.onChildAt(0).assert(hasText(images[0].description))
-        lazyColumnNode.onChildAt(1).assert(hasText(images[1].description))
-        lazyColumnNode.onChildAt(2).assertDoesNotExist()
+        lazyColumnNode.onChildAt(0).assert(hasContentDescription(images[0].description))
+        lazyColumnNode.onChildAt(1).assert(hasText(images[0].description))
+        lazyColumnNode.onChildAt(2).assert(hasContentDescription(images[1].description))
+        lazyColumnNode.onChildAt(3).assert(hasText(images[1].description))
+        lazyColumnNode.onChildAt(4).assertDoesNotExist()
     }
 }
