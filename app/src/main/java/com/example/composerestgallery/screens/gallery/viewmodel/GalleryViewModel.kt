@@ -29,8 +29,6 @@ class GalleryViewModel(
                     images = try {
                         LoadingState.Loaded(galleryService.getPhotos())
                     } catch (e: Exception) {
-                        println("MY EXC:")
-                        println(e)
                         LoadingState.Error
                     }
                 )
