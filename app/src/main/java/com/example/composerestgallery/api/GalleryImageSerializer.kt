@@ -16,7 +16,7 @@ object GalleryImageSerializer : KSerializer<GalleryImage> {
         val jsonObject = decoder.decodeSerializableValue(JsonObject.serializer())
         val description = jsonObject.getValue("description").jsonPrimitive.content
         val userName = jsonObject.jsonObject["user"]?.jsonObject?.get("name")?.jsonPrimitive?.content
-        val url = jsonObject.jsonObject["urls"]?.jsonObject?.get("small")?.jsonPrimitive?.content
+        val url = jsonObject.jsonObject["urls"]?.jsonObject?.get("regular")?.jsonPrimitive?.content
 
         if (userName != null && url != null) {
             return GalleryImage(

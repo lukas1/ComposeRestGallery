@@ -45,7 +45,7 @@ fun GalleryScreen(viewModel: GalleryViewModel) {
                         ),
                         contentDescription = image.description,
                         modifier = Modifier
-                            .fillMaxWidth(fraction = 0.5f)
+                            .fillMaxWidth(fraction = 0.8f)
                     )
                     Text(text = image.description)
                 }
