@@ -24,6 +24,9 @@ fun GalleryListImage(image: GalleryImage, height: Float) {
             .height(Dp(height)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // In LazyVerticalGrid this Coil image painter has poor performance
+        // I didn't into it. Could be also issue with the LazyVerticalGrid which is still
+        // experimental.
         Image(
             painter = rememberCoilPainter(
                 image.url,
@@ -34,7 +37,6 @@ fun GalleryListImage(image: GalleryImage, height: Float) {
                     // Without it, content jumps around as images are loaded.
                     // For this demo this is left as is.
                     placeholder(R.drawable.ic_baseline_image_24)
-                    size(OriginalSize)
                 }
             ),
             contentDescription = image.description,
